@@ -55,6 +55,24 @@
     <audio data-key="75" src="sounds/tom.wav"></audio>
     <audio data-key="76" src="sounds/tink.wav"></audio>
 
-    <script></script>
+    <script>
+      window.addEventListener('keydown', function ({ which: keyCode }) {
+        const audio = document.querySelector(`audio[data-key="${keyCode}"]`);
+        const key = document.querySelector(`.key[data-key="${keyCode}"]`);
+
+        if (!audio) return;
+        audio.load();
+        audio.play();
+
+        if (!key) return;
+        key.classList.add('playing');
+      });
+
+      window.addEventListener('keyup', function ({ which: keyCode }) {
+        const key = document.querySelector(`.key[data-key="${keyCode}"]`);
+        if (!key) return;
+        key.classList.remove('playing');
+      });
+    </script>
   </body>
 </html>
