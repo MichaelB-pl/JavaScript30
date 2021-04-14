@@ -94,6 +94,42 @@
       </div>
     </div>
 
-    <script></script>
+    <script>
+      let isUsingShift = false;
+      let lastEditedCheckboxIndex = -1;
+
+      const inbox = document.querySelector('.inbox');
+      inbox.addEventListener('keydown', () => (isUsingShift = true));
+      inbox.addEventListener('keyup', () => (isUsingShift = false));
+
+      const items = inbox.querySelectorAll('.item');
+      const checkboxes = [];
+      items.forEach((item, index) => {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+
+        checkbox.addEventListener('change', (e) =>
+          onCheckboxStateChanged(e, index)
+        );
+        checkboxes.push(checkbox);
+      });
+
+      function onCheckboxStateChanged({ target }, i) {
+        if (isUsingShift && lastEditedCheckboxIndex !== -1) {
+          const { checked } = target;
+          updateCheckboxesState(lastEditedCheckboxIndex, i, checked);
+        }
+
+        lastEditedCheckboxIndex = i;
+      }
+
+      function updateCheckboxesState(startIndex, endIndex, checked) {
+        const start = startIndex < endIndex ? startIndex : endIndex;
+        const end = endIndex > startIndex ? endIndex : startIndex;
+
+        for (let i = start; i < end + 1; i++) {
+          checkboxes[i].checked = checked;
+        }
+      }
+    </script>
   </body>
 </html>
