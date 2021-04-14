@@ -95,38 +95,29 @@
     </div>
 
     <script>
-      let isUsingShift = false;
-      let lastEditedCheckboxIndex = -1;
+      let lastCheckedIndex = -1;
 
-      const inbox = document.querySelector('.inbox');
-      inbox.addEventListener('keydown', () => (isUsingShift = true));
-      inbox.addEventListener('keyup', () => (isUsingShift = false));
-
-      const items = inbox.querySelectorAll('.item');
-      const checkboxes = [];
-      items.forEach((item, index) => {
-        const checkbox = item.querySelector('input[type="checkbox"]');
-
-        checkbox.addEventListener('change', (e) =>
-          onCheckboxStateChanged(e, index)
-        );
-        checkboxes.push(checkbox);
+      const checkboxes = document.querySelectorAll(
+        '.inbox input[type="checkbox"]'
+      );
+      checkboxes.forEach((checkbox, index) => {
+        checkbox.addEventListener('click', (e) => handleCheck(e, index));
       });
 
-      function onCheckboxStateChanged({ target }, i) {
-        if (isUsingShift && lastEditedCheckboxIndex !== -1) {
+      function handleCheck({ target, shiftKey }, i) {
+        if (shiftKey && lastCheckedIndex !== -1) {
           const { checked } = target;
-          updateCheckboxesState(lastEditedCheckboxIndex, i, checked);
+          updateCheckboxesState(checked, lastCheckedIndex, i);
         }
 
-        lastEditedCheckboxIndex = i;
+        lastCheckedIndex = i;
       }
 
-      function updateCheckboxesState(startIndex, endIndex, checked) {
-        const start = startIndex < endIndex ? startIndex : endIndex;
-        const end = endIndex > startIndex ? endIndex : startIndex;
+      function updateCheckboxesState(checked, ...selectedRange) {
+        const start = Math.min(...selectedRange);
+        const end = Math.max(...selectedRange);
 
-        for (let i = start; i < end + 1; i++) {
+        for (let i = start; i <= end; i++) {
           checkboxes[i].checked = checked;
         }
       }
