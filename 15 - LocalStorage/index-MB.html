@@ -51,11 +51,18 @@
         <input type="text" name="item" placeholder="Item Name" required />
         <input type="submit" value="+ Add Item" />
       </form>
+      <div class="edit-buttons">
+        <button name="delete">Delete All</button>
+        <button name="check">Check All</button>
+        <button name="uncheck">Uncheck All</button>
+      </div>
     </div>
 
     <script>
       const addItems = document.querySelector('.add-items');
       const itemsList = document.querySelector('.plates');
+      const editButtons = document.querySelector('.edit-buttons');
+
       const items = JSON.parse(localStorage.getItem('items')) || [];
 
       function addItem(e) {
@@ -67,24 +74,8 @@
         };
 
         items.push(item);
-        populateList(items, itemsList);
-        localStorage.setItem('items', JSON.stringify(items));
+        applyChanges();
         this.reset();
-      }
-
-      function populateList(plates = [], platesList) {
-        platesList.innerHTML = plates
-          .map((plate, i) => {
-            return `
-              <li>
-                <input type="checkbox" data-index="${i}" id="item${i}" ${
-              plate.done ? 'checked' : ''
-            }/>
-                <label for="item${i}">${plate.text}</label>
-              </li>
-            `;
-          })
-          .join('');
       }
 
       function toggleDone({ target }) {
@@ -92,12 +83,60 @@
         const { index } = target.dataset;
         items[index].done = !items[index].done;
 
-        localStorage.setItem('items', JSON.stringify(items));
+        applyChanges();
+      }
+
+      function applyChanges() {
         populateList(items, itemsList);
+        localStorage.setItem('items', JSON.stringify(items));
+      }
+
+      function populateList(plates = [], platesList) {
+        platesList.innerHTML = plates
+          .map((plate, i) => {
+            return `
+                    <li>
+                      <input type="checkbox" data-index="${i}" id="item${i}" ${
+              plate.done ? 'checked' : ''
+            }/>
+                      <label for="item${i}">${plate.text}</label>
+                    </li>
+                  `;
+          })
+          .join('');
+      }
+
+      function handleButtonClick({ target: { name } }) {
+        switch (name) {
+          case 'delete':
+            deleteAllItems();
+            return;
+          case 'check':
+            checkAllItems();
+            return;
+          case 'uncheck':
+            checkAllItems(false);
+            return;
+          default:
+            return;
+        }
+      }
+
+      function deleteAllItems() {
+        items.splice(0, items.length);
+        applyChanges();
+      }
+
+      function checkAllItems(checked = true) {
+        items.forEach((item) => {
+          item.done = checked;
+        });
+        applyChanges();
       }
 
       addItems.addEventListener('submit', addItem);
       itemsList.addEventListener('click', toggleDone);
+      editButtons.addEventListener('click', handleButtonClick);
 
       populateList(items, itemsList);
     </script>
